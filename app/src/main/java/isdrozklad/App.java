@@ -3,45 +3,14 @@
  */
 package isdrozklad;
 
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.*;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.NoSuchFileException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.GregorianCalendar;
 
 public class App {
-    public String getGreeting() {
-        return "Hello World!";
-    }
 
     public static void main(String[] args) throws IOException {
-        SimpleDateFormat format = new SimpleDateFormat("dd.MM.yyyy");
-        File inputFile = new File("C:\\Users\\Ineed\\Downloads\\group-time-table.xlsx");
-        FileInputStream stream;
-        try {
-            stream = new FileInputStream(inputFile);
-        } catch (FileNotFoundException exception) {
-            System.out.println("Файл не найден!");
-            System.exit(-1);
-        }
-        Workbook workbook = WorkbookFactory.create(inputFile);
-        Sheet sheet = workbook.getSheetAt(0);
-        int lastRowNum = sheet.getLastRowNum();
-        int lastCellNum = sheet.getRow(0).getLastCellNum();
-        for (int j = 0; j < 1; j++) {
-            for (int i = 3; i <= lastRowNum; i++) {
-                if (sheet.getRow(i) == null) continue;
-                Row row = sheet.getRow(i);
-                Cell cell = row.getCell(j);
-                if (cell != null) {
-                    System.out.println(new String(cell.toString().getBytes(StandardCharsets.UTF_8), "cp1251"));
-                } else System.out.println();
-            }
-        }
-        workbook.close();
+        ScheduleParser scheduleParser = new ScheduleParser("C:\\Users\\Ineed\\Downloads\\group-time-table.xls");
+//        scheduleParser.getNextWeekSchedule();
+        System.out.println(MyDateUtils.getDayAfter());
     }
 }
