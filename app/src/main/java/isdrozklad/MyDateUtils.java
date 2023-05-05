@@ -1,26 +1,45 @@
 package isdrozklad;
 
-import java.io.UnsupportedEncodingException;
-import java.nio.charset.StandardCharsets;
-import java.text.SimpleDateFormat;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Date;
 
 public class MyDateUtils {
-   private static final DateTimeFormatter format = DateTimeFormatter.ofPattern("dd.MM.yyyy");
+    private static final DateTimeFormatter format = DateTimeFormatter.ofPattern("dd.MM.yyyy");
     private static final DateTimeFormatter dayFormat = DateTimeFormatter.ofPattern("E");
-   private static final LocalDateTime date = LocalDateTime.now();
+    private static final LocalDateTime date = LocalDateTime.now();
 
-    public static String getCurrentDay() {
-        return ScheduleParser.convertToCP1251(dayFormat.format(date));
-   }
-    public static String getDayAfter() {
-        return ScheduleParser.convertToCP1251(dayFormat.format(date.plusDays(1)));
+    public static Enum<Days> getDayAfter(int days) {
+        return parseDay(dayFormat.format(date.plusDays(days)));
     }
-   public static String getCurrentDate() {
-       return ScheduleParser.convertToCP1251(format.format(date));
-   }
+
+    public static String getCurrentDate() {
+        return format.format(date);
+    }
+
+    /*
+       Этот кусок кода является надругательством над всем святым в этом мире.
+       Поскольку никакие методы сравнения не работают из-за сломанной кодировки на моей Intellij, то я отчаялся
+       И начал сравнивать байты.
+       Сильно не бейте
+    */
+    public static Enum<Days> parseDay(String input) {
+        switch (input.toLowerCase()) {
+            case ("пн"):
+                return Days.MONDAY;
+            case ("вт"):
+                return Days.TUESDAY;
+            case ("ср"):
+                return Days.WEDNESDAY;
+            case ("чт"):
+                return Days.THURSDAY;
+            case ("пт"):
+                return Days.FRIDAY;
+            case ("сб"):
+                return Days.SATURDAY;
+            case ("нд"):
+                return Days.SUNDAY;
+            default:
+                return Days.INVALIDDAY;
+        }
+    }
 }

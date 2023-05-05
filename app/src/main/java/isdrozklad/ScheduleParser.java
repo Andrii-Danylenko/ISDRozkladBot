@@ -1,33 +1,49 @@
 package isdrozklad;
 
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
-import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
 
-import java.io.*;
-import java.nio.charset.StandardCharsets;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 public class ScheduleParser {
-    private static File inputFile;
+    private int j = 3; // Отступ вниз на три ячейки, поскольку их занимает информация о группе.
     private static HSSFWorkbook workbook;
 
     public ScheduleParser(String path) {
         try {
-            inputFile = new File(path);
+            File inputFile = new File(path);
             FileInputStream stream = new FileInputStream(inputFile);
             workbook = new HSSFWorkbook(stream);
         } catch (FileNotFoundException exception) {
-            System.out.println("���� �� ������!");
-            System.exit(-1);
-        } catch (IOException e) {
-            System.out.println("������ ��� ��������� �������!");
-            e.printStackTrace();
+            System.out.println("Файл не найден!");
+            exception.printStackTrace();
+        } catch (IOException exception) {
+            System.out.println("Ошибка при обработке запроса!");
+            exception.printStackTrace();
         }
     }
 
-    public int getTodaysRow() throws IOException {
+    public String outputSchedule(ArrayList<Map.Entry<String, String>> schedule) {
+        StringBuilder builder = new StringBuilder();
+        for (Map.Entry<String, String> entry : schedule) {
+            builder.append("\n").append(entry.getKey()).append(" \n").append(entry.getValue()).append("\n");
+            if (entry.getKey().equalsIgnoreCase("Сб") || entry.getKey().equalsIgnoreCase("Нд")) {
+                builder.append("Пар немає").append("\n");
+            }
+        }
+        j = 3;
+        return builder.toString();
+    }
+
+    private int getTodaysRow() {
         Sheet sheet = workbook.getSheetAt(0);
         int lastRowNum = sheet.getLastRowNum();
         int lastCellNum = sheet.getRow(0).getLastCellNum();
@@ -45,23 +61,65 @@ public class ScheduleParser {
         }
         return -1;
     }
-    public void getThisWeekSchedule() throws IOException {
-        getScheduleLogic(false);
+
+    public String dayScheduleLogic(int day) {
+        Enum<Days> dayToday = MyDateUtils.getDayAfter(day);
+        int weekRow = getTodaysRow();
+        ArrayList<Map.Entry<String, String>> pair = new ArrayList<>();
+        Sheet sheet = workbook.getSheetAt(0);
+        int lastRowNum = sheet.getLastRowNum();
+        for (int i = weekRow; i < weekRow + 1; i++) {
+            while (j < lastRowNum) {
+                try {
+                    Row row1 = sheet.getRow(j);
+                    Cell cell1 = row1.getCell(0);
+                    if (MyDateUtils.parseDay(cell1.toString()).equals(dayToday)) {
+                        while (true) {
+                            row1 = sheet.getRow(j);
+                            cell1 = row1.getCell(0);
+                            Row row = sheet.getRow(j);
+                            Cell cell = row.getCell(i);
+                            j++;
+                            if (MyDateUtils.parseDay(cell1.toString()).equals(MyDateUtils.getDayAfter(day + 1))) {
+                                return outputSchedule(pair);
+                            }
+                            pair.add(new HashMap.SimpleEntry<>(cell1.toString(), cell.toString()));
+                        }
+                    }
+                } catch (NullPointerException exception) {
+                    System.out.println("NPE suppressed");
+                }
+                j++;
+            }
+        }
+        return null;
     }
-    public void getNextWeekSchedule() throws IOException {
-        getScheduleLogic(true);
+
+    public String getThisDaySchedule() {
+        return dayScheduleLogic(0);
     }
-    private void getScheduleLogic(boolean isNext) throws IOException {
+
+    public String getTomorrowSchedule() {
+        return dayScheduleLogic(1);
+    }
+
+    public String getThisWeekSchedule() {
+        return weekScheduleLogic(false);
+    }
+
+    public String getNextWeekSchedule() {
+        return weekScheduleLogic(true);
+    }
+
+    private String weekScheduleLogic(boolean isNext) {
         int weekRow;
         if (!isNext) {
             weekRow = getTodaysRow();
         } else weekRow = getTodaysRow() + 1;
-        String currentDay = MyDateUtils.getCurrentDay();
         ArrayList<Map.Entry<String, String>> pair = new ArrayList<>();
         Sheet sheet = workbook.getSheetAt(0);
         int lastRowNum = sheet.getLastRowNum();
-        for (int i = weekRow; i < weekRow+1; i++) {
-            int j = 3;
+        for (int i = weekRow; i < weekRow + 1; i++) {
             while (j < lastRowNum) {
                 if (sheet.getRow(j) != null) {
                     try {
@@ -70,31 +128,15 @@ public class ScheduleParser {
                         Row row1 = sheet.getRow(j);
                         Cell cell1 = row1.getCell(0);
                         j++;
-                       if (cell.toString().length() + cell1.toString().length() != 18) {
-                           pair.add(new HashMap.SimpleEntry<>(convertToCP1251(cell1.toString()), convertToCP1251(cell.toString())));
-                       }
+                        if (cell.toString().length() + cell1.toString().length() != 18) {
+                            pair.add(new HashMap.SimpleEntry<>(cell1.toString(), cell.toString()));
+                        }
                     } catch (NullPointerException exception) {
                         System.out.print("NPE caught");
                     }
                 }
             }
         }
-       outputSchedule(pair);
-    }
-    public static void outputSchedule(ArrayList<Map.Entry<String, String>> schedule) {
-        for (Map.Entry<String, String> entry : schedule) {
-           System.out.println("\n" + entry.getKey() + " \n" + entry.getValue());
-           if (entry.getKey().equalsIgnoreCase(convertToCP1251("��")) || entry.getKey().equalsIgnoreCase(convertToCP1251("��")) ) {
-               System.out.println(convertToCP1251("��� ����"));
-           }
-        }
-    }
-    public static String convertToCP1251(String input) {
-        try {
-            return new String(input.getBytes(StandardCharsets.UTF_8), "cp1251");
-        } catch (UnsupportedEncodingException exception) {
-            System.err.print("cp1251 encoding isn't supported");
-            return "Goodbye...";
-        }
+        return outputSchedule(pair);
     }
 }
