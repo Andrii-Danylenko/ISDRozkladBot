@@ -1,8 +1,16 @@
 package isdrozklad;
+import org.telegram.telegrambots.meta.TelegramBotsApi;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import org.telegram.telegrambots.updatesreceivers.DefaultBotSession;
+
 public class App {
 
     public static void main(String[] args) {
-        ScheduleParser scheduleParser = new ScheduleParser("C:\\Users\\Ineed\\Downloads\\group-time-table.xls");
-        System.out.println(scheduleParser.getTomorrowSchedule());
+        try {
+            TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
+            telegramBotsApi.registerBot(new ISDRozkladBot());
+        } catch (TelegramApiException e) {
+            e.printStackTrace();
+        }
     }
 }

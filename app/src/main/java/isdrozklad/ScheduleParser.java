@@ -5,7 +5,6 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -15,12 +14,10 @@ import java.util.Map;
 
 public class ScheduleParser {
     private int j = 3; // Отступ вниз на три ячейки, поскольку их занимает информация о группе.
-    private static HSSFWorkbook workbook;
+    private HSSFWorkbook workbook;
 
     public ScheduleParser(String path) {
-        try {
-            File inputFile = new File(path);
-            FileInputStream stream = new FileInputStream(inputFile);
+        try (FileInputStream stream = new FileInputStream(path)) {
             workbook = new HSSFWorkbook(stream);
         } catch (FileNotFoundException exception) {
             System.out.println("Файл не найден!");
@@ -34,7 +31,7 @@ public class ScheduleParser {
     public String outputSchedule(ArrayList<Map.Entry<String, String>> schedule) {
         StringBuilder builder = new StringBuilder();
         for (Map.Entry<String, String> entry : schedule) {
-            builder.append("\n").append(entry.getKey()).append(" \n").append(entry.getValue()).append("\n");
+            builder.append("\n").append(entry.getKey()).append("\n").append(entry.getValue()).append("\n");
             if (entry.getKey().equalsIgnoreCase("Сб") || entry.getKey().equalsIgnoreCase("Нд")) {
                 builder.append("Пар немає").append("\n");
             }
@@ -132,7 +129,7 @@ public class ScheduleParser {
                             pair.add(new HashMap.SimpleEntry<>(cell1.toString(), cell.toString()));
                         }
                     } catch (NullPointerException exception) {
-                        System.out.print("NPE caught");
+                        System.out.print("NPE caught\n");
                     }
                 }
             }

@@ -18,6 +18,7 @@ repositories {
 }
 
 dependencies {
+    implementation ("org.telegram:telegrambots:6.5.0")
     // This dependency is used by the application.
     implementation("com.google.guava:guava:31.1-jre")
     implementation("org.apache.poi:poi-ooxml:4.1.1")
