@@ -11,6 +11,7 @@ import isdrozklad.utils.DateUtils;
 import java.io.FileInputStream;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class Parser {
@@ -56,7 +57,7 @@ public class Parser {
                     String[] data = sheet.getRow(i).getCell(offset[1]).toString().split("\n");
                     if (data.length == 3) {
                         clazz.setPairNumber(sheet.getRow(i).getCell(0).toString().charAt(0) - '0');
-                        clazz.setPairTime(data[1]);
+                        clazz.setPairTime(sheet.getRow(i).getCell(0).toString().split("\n")[1]);
                     }
                     clazz.setPairDetails(sheet.getRow(i).getCell(offset[1]).toString().replaceAll("\n", ", "));
                     day.getPairsList().add(clazz);
