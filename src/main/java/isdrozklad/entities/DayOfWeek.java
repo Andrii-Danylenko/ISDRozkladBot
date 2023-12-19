@@ -47,7 +47,7 @@ public class DayOfWeek {
      public String toString() {
           boolean hasPairs = false;
           StringBuilder builder = new StringBuilder();
-          builder.append("%s - %s".formatted(dayOfWeek, date)).append("\n");
+          builder.append("%s - %s %s".formatted(dayOfWeek, date, DayOfWeek.getAmountOfPairs(this))).append("\n");
           for (Classes clazz: pairsList) {
                if (!clazz.getPairDetails().isEmpty()) {
                     hasPairs = true;
@@ -55,5 +55,17 @@ public class DayOfWeek {
                }
           }
           return hasPairs ? builder.toString() : builder.append("Пар немає! Відпочиваємо!\n").toString();
+     }
+
+     public static String getAmountOfPairs(DayOfWeek day) {
+          switch (day.pairsList.size()) {
+               case 1: return "(1 пара)";
+               case 2: return "(2 пари)";
+               case 3: return "(3 пари)";
+               case 4: return "(4 пари)";
+               case 5: return "(5 пар)";
+               case 6: return "(6 пар)";
+               default: return "(пар немає)";
+          }
      }
 }

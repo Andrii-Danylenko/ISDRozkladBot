@@ -11,13 +11,14 @@ import isdrozklad.utils.DateUtils;
 import java.io.FileInputStream;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
-public class Parser {
+// Легаси-код парсера XLS-таблиц. На данный момент бесполезен.
+@Deprecated
+public class XLSParser {
     private Workbook workbook;
 
-    public Parser(String pathToFile) {
+    public XLSParser(String pathToFile) {
         try (FileInputStream wb = new FileInputStream(pathToFile)) {
             workbook = new HSSFWorkbook(wb);
         } catch (Exception exception) {
