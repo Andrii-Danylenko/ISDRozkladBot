@@ -1,4 +1,4 @@
-package isdrozklad.utils;
+package isdrozklad.db;
 
 import isdrozklad.entities.UserData;
 
