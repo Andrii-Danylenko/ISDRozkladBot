@@ -1,7 +1,5 @@
 package isdrozklad.entities;
 
-import java.time.LocalDate;
-
 public class Classes {
     int pairNumber;
     String pairTime;
